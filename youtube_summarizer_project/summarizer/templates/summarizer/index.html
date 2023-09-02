@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YouTube Summarizer</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Welcome to YouTube Summarizer</h1>
+    <p>Enter the URL of the YouTube video you want to summarize:</p>
+    <form action="{% url 'summarize_video' %}" method="post">
+      {% csrf_token %}
+      <input type="url" name="video_url" required />
+      <input type="submit" value="Summarize" />
+    </form>
+    <h2>Video Summarization Progress</h2>
+    <progress
+      id="progressBar"
+      value="0"
+      max="100"
+      style="width: 100%"
+    ></progress>
+
+    <script>
+      function updateProgress() {
+        $.get("/check_progress/", function (data) {
+          if (data.status == "processing") {
+            // Update the progress bar
+            $("#progressBar").val(data.progress);
+          } else if (data.status == "completed") {
+            // Redirect to a result page or show a completion message
+            alert("Summarization completed!");
+          } else if (data.status == "error") {
+            // Show an error message
+            alert("An error occurred: " + data.message);
+          }
+
+          // If it's still processing, keep checking
+          if (data.status == "processing") {
+            setTimeout(updateProgress, 2000); // Check every 2 seconds
+          }
+        });
+      }
+
+      // Start checking progress as soon as the page loads
+      updateProgress();
+    </script>
+  </body>
+</html>
