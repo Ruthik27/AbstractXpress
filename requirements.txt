@@ -1,0 +1,4 @@
+
+Django>=3.2,<4
+transformers>=4.9,<5
+youtube_transcript_api>=0.4,<1
