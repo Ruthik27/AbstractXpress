@@ -73,4 +73,4 @@ The application fetches the transcript of the provided YouTube video, divides it
 
 ### 🤝 Contributing
 
-We welcome contributions! 🎉 Raise an issue or submit a pull request to improve the application.
+I welcome contributions! 🎉 Raise an issue or submit a pull request to improve the application.
