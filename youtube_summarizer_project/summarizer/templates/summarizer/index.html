@@ -1,42 +1,126 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YouTube Summarizer</title>
+
+    <!-- Styles -->
+    <style>
+      /* Reset some default styles */
+      body,
+      h1,
+      h2,
+      p,
+      a,
+      form,
+      input {
+        margin: 0;
+        padding: 0;
+        font-family: "Arial", sans-serif;
+        text-decoration: none;
+      }
+
+      /* General body styling */
+      body {
+        background-color: #f5f5f5;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
+      strong {
+        font-size: larger;
+      }
+      /* Navbar styling */
+      nav {
+        background-color: rgb(36, 36, 36);
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+      }
+
+      /* Form styling */
+      form {
+        margin-top: 20px;
+      }
+
+      input[type="url"] {
+        padding: 10px;
+        width: 60%;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input[type="submit"] {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #555;
+      }
+
+      /* Progress bar styling */
+      progress {
+        width: 100%;
+        margin-top: 20px;
+        appearance: none;
+      }
+
+      progress[value]::-webkit-progress-bar {
+        background-color: #eee;
+        border-radius: 4px;
+      }
+
+      progress[value]::-webkit-progress-value {
+        background-color: #4caf50;
+        border-radius: 4px;
+      }
+
+      progress[value]::-moz-progress-bar {
+        background-color: #4caf50;
+        border-radius: 4px;
+      }
+    </style>
+
+    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
+
   <body>
-    <h1>Welcome to YouTube Summarizer</h1>
-    <p>Enter the URL of the YouTube video you want to summarize:</p>
+    <!-- Navigation Bar with Title -->
+    <nav>
+      <h1>YouTube Summarizer</h1>
+    </nav>
+    <br />
+
+    <strong>Enter the URL of the YouTube video you want to summarize:</strong>
     <form action="{% url 'summarize_video' %}" method="post">
       {% csrf_token %}
       <input type="url" name="video_url" required />
       <input type="submit" value="Summarize" />
     </form>
     <h2>Video Summarization Progress</h2>
-    <progress
-      id="progressBar"
-      value="0"
-      max="100"
-      style="width: 100%"
-    ></progress>
+    <progress id="progressBar" value="0" max="100"></progress>
 
     <script>
       function updateProgress() {
         $.get("/check_progress/", function (data) {
-          if (data.status == "processing") {
+          if (data.status == "processing" || data.status == "pending") {
             // Update the progress bar
             $("#progressBar").val(data.progress);
+            setTimeout(updateProgress, 2000); // Check every 2 seconds
           } else if (data.status == "completed") {
             // Redirect to a result page or show a completion message
             alert("Summarization completed!");
           } else if (data.status == "error") {
             // Show an error message
             alert("An error occurred: " + data.message);
-          }
-
-          // If it's still processing, keep checking
-          if (data.status == "processing") {
-            setTimeout(updateProgress, 2000); // Check every 2 seconds
           }
         });
       }

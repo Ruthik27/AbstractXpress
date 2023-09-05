@@ -19,7 +19,7 @@ summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
 progress_status = {
     'status': 'pending',
     'progress': 0,
-    'message': ''
+    'message': 'Initializing...'
 }
 
 def index(request):
@@ -43,6 +43,8 @@ def summarize_video(request):
             # Fetching the transcript using YouTubeTranscriptApi
             try:
                 transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                progress_status['progress'] = 25
+                progress_status['message'] = 'Transcript extracted. Summarizing...'
             except Exception as e:
                 progress_status['status'] = 'error'
                 progress_status['message'] = f"An error occurred while fetching transcript: {str(e)}"
@@ -56,7 +58,6 @@ def summarize_video(request):
 
 
             # Update progress status
-            progress_status['status'] = 'completed'
             progress_status['progress'] = 100
             progress_status['message'] = 'Summarization completed.'
 
@@ -115,8 +116,10 @@ def summarize_large_text(text):
         
         # 2. Chunking the text
         chunks = chunk_text(text)
+        progress_increment = 50 / len(chunks)  # Calculate progress increment based on the number of chunks
+
         all_summaries = []
-        
+
         for current_chunk_text in chunks:
             # If the chunk is empty, continue to the next chunk
             if not current_chunk_text.strip():
@@ -129,11 +132,16 @@ def summarize_large_text(text):
             if token_count_chunk > 1024:
                 print("Token count exceeds model's limit. Skipping this chunk.")
                 continue
-            
+
             current_max_length = min(token_count_chunk + 20, 100)  # Adjusting the max_length
             print("Chunk being summarized:", current_chunk_text)
             summary = summarizer(current_chunk_text, max_length=current_max_length, min_length=25, do_sample=False)
             all_summaries.append(summary[0]['summary_text'])
+
+            # Update progress after summarizing the chunk
+            progress_status['progress'] += progress_increment
+            progress_status['message'] = f'Summarized {round(progress_status["progress"])}% of the content...'
+
         
         return " ".join(all_summaries)
 
