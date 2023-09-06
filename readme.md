@@ -77,4 +77,4 @@ I welcome contributions! 🎉 Raise an issue or submit a pull request to improve
 
 ## License 📜
 
-This project is licensed under the MIT License:
+This project is licensed under the [MIT License](LICENSE)
